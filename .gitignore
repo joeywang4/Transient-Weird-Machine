@@ -1,0 +1,7 @@
+*.elf
+*.o
+*.so
+*.out
+log/
+build/
+.vscode/
