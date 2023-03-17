@@ -50,52 +50,52 @@ On a successful execution, our weird machine generates the following output:
 __Intel__
 ```
 ** Testing exception-based gates...
-rm -rf *.o build/ main.elf *~
+rm -rf *.o build/ *.elf *~
 mkdir build
-g++ -O2 -c -o build/compose.o gates/compose.cpp
+g++ -O2 -D INTEL -c -o build/compose.o gates/compose.cpp
 g++ -O2 -o main.elf main.cpp build/compose.o -lm
-=== ASSIGN gate (Exception) ===
-Correct rate: (avg, std) = (99.6563%, 0.0042)
-Time usage: 2.709s over 1000000 iterations.
-=== OR gate (Exception) ===
-Correct rate: (avg, std) = (99.9365%, 0.0019)
-Time usage: 2.545s over 1000000 iterations.
 === AND gate (Exception) ===
-Correct rate: (avg, std) = (99.8955%, 0.0015)
-Time usage: 2.650s over 1000000 iterations.
+Correct rate: (avg, std) = (99.5290%, 0.0142)
+Time usage: 4.761s over 1000000 iterations.
+=== OR gate (Exception) ===
+Correct rate: (avg, std) = (99.6549%, 0.0060)
+Time usage: 4.702s over 1000000 iterations.
+=== ASSIGN gate (Exception) ===
+Correct rate: (avg, std) = (99.2758%, 0.0190)
+Time usage: 4.779s over 1000000 iterations.
 === NOT gate (Exception) ===
-Correct rate: (avg, std) = (99.9430%, 0.0012)
-Time usage: 2.770s over 1000000 iterations.
+Correct rate: (avg, std) = (99.9588%, 0.0008)
+Time usage: 4.895s over 1000000 iterations.
 === NAND gate (Exception) ===
-Correct rate: (avg, std) = (99.0637%, 0.0079)
-Time usage: 7.829s over 1000000 iterations.
+Correct rate: (avg, std) = (99.9603%, 0.0009)
+Time usage: 6.007s over 1000000 iterations.
 === XOR gate (Exception) ===
-Correct rate: (avg, std) = (96.2333%, 0.0839)
-Time usage: 17.665s over 1000000 iterations.
+Correct rate: (avg, std) = (93.5318%, 0.0461)
+Time usage: 15.428s over 1000000 iterations.
 === MUX gate (Exception) ===
-Correct rate: (avg, std) = (97.1245%, 0.0529)
-Time usage: 14.798s over 1000000 iterations.
+Correct rate: (avg, std) = (99.9160%, 0.0015)
+Time usage: 11.874s over 1000000 iterations.
 
 ** Testing branch predictor-based gates...
 rm -f spectre.elf
 cc -std=c99 -O0 -o spectre.elf spectre.c
 === AND gate (Branch predictor) ===
-Correct rate: 94.80%
-Time usage: 3.318s over 1000000 iterations.
+Correct rate: 88.58%
+Time usage: 2.911s over 1000000 iterations.
 
 ** Testing branch target buffer-based gates...
 rm -f spectrev2.elf
 cc -std=c99 -O0 -o spectrev2.elf spectrev2.c
 === AND gate (Branch target buffer) ===
-Correct rate: 95.77%
-Time usage: 4.570s over 1000000 iterations.
+Correct rate: 91.82%
+Time usage: 4.571s over 1000000 iterations.
 
 ** Testing TSX-based gates...
 rm -f *.o tsx.elf *~
 gcc -O2 -o tsx.elf tsx.c -lm
 === AND gate (TSX) ===
-Correct rate: (avg, std) = (99.9033%, 0.0039)
-Time usage: 0.561s over 1000000 iterations.
+Correct rate: (avg, std) = (99.8885%, 0.0015)
+Time usage: 0.560s over 1000000 iterations.
 
 ** Done!
 ```
