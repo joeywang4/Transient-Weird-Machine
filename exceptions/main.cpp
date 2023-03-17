@@ -28,10 +28,10 @@ bool do_assign_gate(unsigned input) {
     assign(reg1, input & 1);
     _mm_clflush(reg2);
     _mm_clflush(reg3);
-    for (volatile int z = 0; z < 64; z++) {}
+    for (volatile int z = 0; z < 512; z++) {}
 
     assign_gate(reg1, reg2, reg3);
-    for (volatile int z = 0; z < 64; z++) {}
+    for (volatile int z = 0; z < 512; z++) {}
 
     uint64_t clk = timer(reg2);
     uint64_t clk2 = timer(reg3);
@@ -47,10 +47,10 @@ bool do_or_gate(unsigned input) {
     assign(reg1, input & 1);
     assign(reg2, input & 2);
     _mm_clflush(reg3);
-    for (volatile int z = 0; z < 64; z++) {}
+    for (volatile int z = 0; z < 512; z++) {}
 
     or_gate(reg1, reg2, reg3);
-    for (volatile int z = 0; z < 64; z++) {}
+    for (volatile int z = 0; z < 512; z++) {}
 
     uint64_t clk = timer(reg3);
     return (clk <= THRESHOLD) == ((input & 3) > 0);
@@ -61,11 +61,11 @@ bool do_and_gate(unsigned input) {
     reg2[0] = 0;
     assign(reg1, input & 1);
     assign(reg2, input & 2);
-    _mm_clflush(reg3);    
-    for (volatile int z = 0; z < 64; z++) {}
+    _mm_clflush(reg3);
+    for (volatile int z = 0; z < 512; z++) {}
 
     and_gate(reg1, reg2, reg3);
-    for (volatile int z = 0; z < 64; z++) {}
+    for (volatile int z = 0; z < 512; z++) {}
 
     uint64_t clk = timer(reg3);
     return (clk <= THRESHOLD) == ((input & 3) == 3);
@@ -79,10 +79,10 @@ bool do_not_gate(unsigned input) {
     assign(reg2, input & 1);
     _mm_clflush(reg3);
     _mm_clflush(reg4);
-    for (volatile int z = 0; z < 64; z++) {}
+    for (volatile int z = 0; z < 512; z++) {}
 
     not_gate(reg1, reg2, reg3, reg4);
-    for (volatile int z = 0; z < 64; z++) {}
+    for (volatile int z = 0; z < 512; z++) {}
 
     uint64_t clk = timer(reg3);
     return (clk <= THRESHOLD) == ((input & 1) == 0);
@@ -111,10 +111,9 @@ bool do_xor_gate(unsigned input) {
     assign(reg1, input & 1);
     assign(reg2, input & 2);
     _mm_clflush(reg3);
-    for (volatile int z = 0; z < 64; z++) {}
 
     xor_gate(reg1, reg2, reg3, input);
-    for (volatile int z = 0; z < 64; z++) {}
+    for (volatile int z = 0; z < 512; z++) {}
 
     uint64_t clk = timer(reg3);
     return (clk <= THRESHOLD) == (
@@ -131,10 +130,9 @@ bool do_mux_gate(unsigned input) {
     assign(reg2, input & 2);
     assign(reg3, input & 4);
     _mm_clflush(reg4);
-    for (volatile int z = 0; z < 64; z++) {}
 
     mux_gate(reg1, reg2, reg3, reg4, input);
-    for (volatile int z = 0; z < 64; z++) {}
+    for (volatile int z = 0; z < 512; z++) {}
 
     uint64_t clk = timer(reg4);
     return (clk <= THRESHOLD) == (
@@ -263,9 +261,9 @@ int main(int argc, char* argv[]) {
 
     argp_parse(&argp, argc, argv, 0, 0, 0);
 
-    test_gate("ASSIGN", do_assign_gate, 1);
-    test_gate("OR",     do_or_gate,     2);
     test_gate("AND",    do_and_gate,    2);
+    test_gate("OR",     do_or_gate,     2);
+    test_gate("ASSIGN", do_assign_gate, 1);
     test_gate("NOT",    do_not_gate,    1);
     test_gate("NAND",   do_nand_gate,   2);
     test_gate("XOR",    do_xor_gate,    2);

@@ -23,6 +23,7 @@ uintptr_t *zrbf;
 uint32_t *codebuf;
 uint32_t *not_buf;
 uint32_t *or_buf;
+uint32_t *assign_buf;
 uint32_t *and_buf;
 uint64_t miss_min;
 
@@ -35,8 +36,10 @@ typedef void (*gate_fn)(void* miss_buf, uint8_t* reg1, uint8_t* reg2, uint8_t* r
 gate_fn do_gate;
 gate_fn do_not;
 gate_fn do_or;
+gate_fn do_assign;
 gate_fn do_and;
 extern void or_gate(void* miss_buf, uint8_t* reg1, uint8_t* reg2, uint8_t* reg3);
+extern void assign_gate(void* miss_buf, uint8_t* reg1, uint8_t* reg2, uint8_t* reg3);
 extern void and_gate(void* miss_buf, uint8_t* reg1, uint8_t* reg2, uint8_t* reg3);
 extern void not_gate(void* miss_buf, uint8_t* reg1, uint8_t* reg2, uint8_t* reg3);
 extern void not_gate2(void* miss_buf, uint8_t* reg1, uint8_t* reg2, uint8_t* reg3);
@@ -102,6 +105,27 @@ static inline void assign(uintptr_t* addr, bool val) {
     else {
         flush(addr, 1, probe_stride);
     }
+}
+
+void test_assign_gate() {
+    unsigned correct = 0;
+    clock_t end_t, start_t = clock();
+
+    for (int i = 0; i < ITER; i++) {
+        assign((uintptr_t*)probe1, i & 1);
+        flush(probe3, 1, probe_stride);
+        for (volatile int z = 0; z < 50; z++) {}
+
+        do_assign((void*) 0, probe1, probe2, probe3);
+
+        if (read_bit == ((i & 1) > 0)) correct++;
+    }
+    end_t = clock();
+
+    printf("=== ASSIGN gate (ARM) ===\n");
+    printf("Correct rate: %.3f%%\n", ((double)correct * 100) / ITER);
+    printf("Time usage: %.3fs ", (double)(end_t - start_t) / (CLOCKS_PER_SEC << 1));
+    printf("over %d iterations.\n", ITER);
 }
 
 void test_or_gate() {
@@ -264,17 +288,21 @@ int main(int argc, char** argv){
 
     codebuf = mmap(NULL, 4096, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
     not_buf = mmap(NULL, 4096, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+    assign_buf = mmap(NULL, 4096, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
     or_buf = mmap(NULL, 4096, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
     and_buf = mmap(NULL, 4096, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
     assert(codebuf != MAP_FAILED);
     assert(not_buf != MAP_FAILED);
+    assert(assign_buf != MAP_FAILED);
     assert(or_buf != MAP_FAILED);
     assert(and_buf != MAP_FAILED);
     memcpy(not_buf, not_gate2, CODE_SIZE);
+    memcpy(assign_buf, assign_gate, CODE_SIZE);
     memcpy(or_buf, or_gate, CODE_SIZE);
     memcpy(and_buf, and_gate, CODE_SIZE);
     do_gate = (gate_fn)codebuf;
     do_not = (gate_fn)not_buf;
+    do_assign = (gate_fn)assign_buf;
     do_or = (gate_fn)or_buf;
     do_and = (gate_fn)and_buf;
 
@@ -316,8 +344,9 @@ int main(int argc, char** argv){
     }
     miss_min -= 1;
 
-    test_or_gate();
     test_and_gate();
+    test_or_gate();
+    test_assign_gate();
     test_not_gate();
     xor_gate();
     mux_gate();
