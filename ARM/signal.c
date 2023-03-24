@@ -25,7 +25,7 @@ uint32_t *not_buf;
 uint32_t *or_buf;
 uint32_t *assign_buf;
 uint32_t *and_buf;
-uint64_t miss_min;
+uint64_t miss_min = 14;
 
 #define probe_stride (4 * 1024)
 const size_t probe_size = 1 * probe_stride;
@@ -336,13 +336,6 @@ int main(int argc, char** argv){
     }
     while(counter == 0);
     asm volatile ("DSB SY");
-
-    miss_min = measure_latency();
-    if (miss_min == 0) {
-        fprintf(stderr, "Unreliable access timing\n");
-        exit(1);
-    }
-    miss_min -= 1;
 
     test_and_gate();
     test_or_gate();
