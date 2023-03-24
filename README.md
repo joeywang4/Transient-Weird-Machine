@@ -43,6 +43,14 @@ chmod +x ./run_arm.sh
 ./run_arm.sh
 ```
 
+## Stability Issue
+
+Due to the noises in the cache side channel, the accuracy of the weird gates can sometimes be much lower than the results reported in our paper. To remove the effect of these outliers, we also provide a python script ([median.py](blob/main/median.py)) to measure the median and average accuracy accross multiple executions. Please make sure python3 is installed before running this script.
+
+Usage: `python3 median.py [-h] [-t TRIALS] arch`
+- TRIALS: the number of executions (default to 10)
+- arch: the processor architecture (Intel/AMD/ARM)
+
 ## Example output
 
 On a successful execution, our weird machine generates the following output:
