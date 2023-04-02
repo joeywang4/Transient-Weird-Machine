@@ -12,7 +12,7 @@ build:
 	mkdir build
 
 main.elf: main.cpp gates/single.h build/compose.o
-	$(CPP) $(CFLAGS) -o main.elf main.cpp build/compose.o $(LFLAGS)
+	$(CPP) $(CFLAGS) -D INTEL -o main.elf main.cpp build/compose.o $(LFLAGS)
 
 build/compose.o: gates/compose.cpp gates/compose.h gates/single.h gates/gates.h
 	$(CPP) $(CFLAGS) -D INTEL -c -o build/compose.o gates/compose.cpp

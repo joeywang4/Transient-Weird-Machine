@@ -14,6 +14,11 @@
 bool verbose = false;
 unsigned tot_trials = 100;
 unsigned single_trial = 10000;
+#ifdef INTEL
+#define DELAY 64
+#else
+#define DELAY 512
+#endif
 
 /* Side channel registers */
 uint8_t reg1[4*512];
@@ -28,10 +33,13 @@ bool do_assign_gate(unsigned input) {
     assign(reg1, input & 1);
     _mm_clflush(reg2);
     _mm_clflush(reg3);
-    for (volatile int z = 0; z < 512; z++) {}
+    for (volatile int z = 0; z < DELAY; z++) {}
 
     assign_gate(reg1, reg2, reg3);
-    for (volatile int z = 0; z < 512; z++) {}
+
+    #ifndef INTEL
+    for (volatile int z = 0; z < DELAY; z++) {}
+    #endif
 
     uint64_t clk = timer(reg2);
     uint64_t clk2 = timer(reg3);
@@ -47,10 +55,13 @@ bool do_or_gate(unsigned input) {
     assign(reg1, input & 1);
     assign(reg2, input & 2);
     _mm_clflush(reg3);
-    for (volatile int z = 0; z < 512; z++) {}
+    for (volatile int z = 0; z < DELAY; z++) {}
 
     or_gate(reg1, reg2, reg3);
-    for (volatile int z = 0; z < 512; z++) {}
+
+    #ifndef INTEL
+    for (volatile int z = 0; z < DELAY; z++) {}
+    #endif
 
     uint64_t clk = timer(reg3);
     return (clk <= THRESHOLD) == ((input & 3) > 0);
@@ -62,10 +73,13 @@ bool do_and_gate(unsigned input) {
     assign(reg1, input & 1);
     assign(reg2, input & 2);
     _mm_clflush(reg3);
-    for (volatile int z = 0; z < 512; z++) {}
+    for (volatile int z = 0; z < DELAY; z++) {}
 
     and_gate(reg1, reg2, reg3);
-    for (volatile int z = 0; z < 512; z++) {}
+
+    #ifndef INTEL
+    for (volatile int z = 0; z < DELAY; z++) {}
+    #endif
 
     uint64_t clk = timer(reg3);
     return (clk <= THRESHOLD) == ((input & 3) == 3);
@@ -79,10 +93,13 @@ bool do_not_gate(unsigned input) {
     assign(reg2, input & 1);
     _mm_clflush(reg3);
     _mm_clflush(reg4);
-    for (volatile int z = 0; z < 512; z++) {}
+    for (volatile int z = 0; z < DELAY; z++) {}
 
     not_gate(reg1, reg2, reg3, reg4);
-    for (volatile int z = 0; z < 512; z++) {}
+
+    #ifndef INTEL
+    for (volatile int z = 0; z < DELAY; z++) {}
+    #endif
 
     uint64_t clk = timer(reg3);
     return (clk <= THRESHOLD) == ((input & 1) == 0);

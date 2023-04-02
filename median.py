@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import argparse, os, subprocess, sys, statistics
 from shutil import rmtree
 from collections import defaultdict
